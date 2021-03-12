@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/pranaygp/vscode-css-peek/branch/master/graph/badge.svg)](https://codecov.io/gh/pranaygp/vscode-css-peek)
 
 ## Backed By
-It's an amazing tool I've used before and they didn't ask me to say that :) - Extension Author
+> An amazing tool I've used before and they didn't ask me to say that :) - Extension Author
 
 <p><a title="Try CodeStream" href="https://sponsorlink.codestream.com/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner"><img src="https://alt-images.codestream.com/codestream_logo_pranaygp_css_peek.png"></a></br>
 Manage pull requests and conduct code reviews in your IDE with full source-tree context. Comment on any line, not just the diffs. Use jump-to-definition, your favorite keybindings, and code intelligence with more of your workflow.<br> <a title="Try CodeStream" href="https://sponsorlink.codestream.com/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner">Learn More</a></p>
