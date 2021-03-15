@@ -46,7 +46,11 @@ Contributions are greatly appreciated. Please fork the repository and submit a p
 
 # Changelog
 
-> TODO: Keet the changelog upto date
+> TODO: Keep the changelog upto date
+
+## 4.1.1
+
+- Add CodeStream Banner
 
 ## 3.0.2
 
