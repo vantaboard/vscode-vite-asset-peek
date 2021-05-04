@@ -112,6 +112,11 @@
       }
     }
   },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
     "compile": "tsc -b",
