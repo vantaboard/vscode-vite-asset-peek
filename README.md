@@ -5,6 +5,7 @@
 [![codecov](https://codecov.io/gh/pranaygp/vscode-css-peek/branch/master/graph/badge.svg)](https://codecov.io/gh/pranaygp/vscode-css-peek)
 
 ## Backed By
+
 > An amazing tool I've used before and they didn't ask me to say that :) - Extension Author
 
 <p><a title="Try CodeStream" href="https://sponsorlink.codestream.com/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner"><img src="https://alt-images.codestream.com/codestream_logo_pranaygp_css_peek.png"></a></br>
@@ -30,9 +31,9 @@ In addition, it supports the Symbol Provider so you can quickly jump to the righ
 
 ## Configuration
 
-* `cssPeek.supportTags` - Enable Peeking from HTML tags in addition to classnames and IDs. React components are ignored, but it's a good idea to disable this feature when using Angular.
-* `cssPeek.peekFromLanguages` - A list of vscode language names where the extension should be used.
-* `cssPeek.peekToExclude` - A list of file globs that filters out style files to not look for. By default, `node_modules` and `bower_components`
+- `cssPeek.supportTags` - Enable Peeking from HTML tags in addition to classnames and IDs. React components are ignored, but it's a good idea to disable this feature when using Angular.
+- `cssPeek.peekFromLanguages` - A list of vscode language names where the extension should be used.
+- `cssPeek.peekToExclude` - A list of file globs that filters out style files to not look for. By default, `node_modules` and `bower_components`
 
 See editor docs for more details
 
@@ -47,6 +48,10 @@ Contributions are greatly appreciated. Please fork the repository and submit a p
 # Changelog
 
 > TODO: Keep the changelog upto date
+
+## 4.2.0
+
+- Support VSCode Workspace Trust [#107](https://github.com/pranaygp/vscode-css-peek/issues/107)
 
 ## 4.1.1
 
