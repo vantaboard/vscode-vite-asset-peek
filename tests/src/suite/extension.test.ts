@@ -17,7 +17,7 @@ suite("Extension Tests", () => {
     vscode.workspace
       .openTextDocument(
         vscode.Uri.joinPath(
-          vscode.workspace.workspacFolders[0].uri,
+          vscode.workspace.workspaceFolders[0].uri,
           "example.html"
         )
       )
