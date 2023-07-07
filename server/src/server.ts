@@ -20,7 +20,6 @@ import findSelector from "./core/findSelector";
 import {
   findSymbols,
   findDefinition,
-  getLanguageService,
   isLanguageServiceSupported,
 } from "./core/findDefinition";
 import { create } from "./logger";
@@ -32,70 +31,59 @@ const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments();
 
 // Create a map of styleSheet URIs to the stylesheet text content
+// NOTE: this is a really bad cache in practice. Large files will occupy tons of memory without being reused
+// We should use an in-memory javascript database of some sort with a basic cache invalidation strategy
+// like LRU, an implement some sort of memory cap
 const styleSheets: StylesheetMap = {};
 
 // The workspace folder this server is operating on
 let workspaceFolder: string | null;
 
-let hasConfigurationCapability: boolean = false;
-let hasWorkspaceFolderCapability: boolean = false;
+let hasConfigurationCapability = false;
+let hasWorkspaceFolderCapability = false;
 
-async function documentShouldBeIgnored(document: TextDocument) {
+async function isValidPeekTarget(document: TextDocument) {
   const settings = await getDocumentSettings(document.uri);
-  if (
-    !settings.peekFromLanguages.includes(document.languageId) ||
-    settings.peekToExclude.find((glob) => minimatch(document.uri, glob))
-  ) {
-    return true;
-  } else {
-    return false;
-  }
+  return !settings.peekToExclude.find((glob) => minimatch(document.uri, glob));
+}
+
+async function isValidPeekSource(document: TextDocument) {
+  const settings = await getDocumentSettings(document.uri);
+  return settings.peekFromLanguages.includes(document.languageId);
 }
 
 /* Handle Document Updates */
 documents.onDidOpen(async (event) => {
-  if (await documentShouldBeIgnored(event.document)) {
+  if (!(await isValidPeekTarget(event.document))) {
     return;
   }
 
-  connection.console.log(
-    `[Server(${process.pid}) ${path.basename(
-      workspaceFolder
-    )}/] Document opened: ${path.basename(event.document.uri)}`
-  );
   if (isLanguageServiceSupported(event.document.languageId)) {
-    const languageService = getLanguageService(event.document);
-    const stylesheet = languageService.parseStylesheet(event.document);
-    const symbols = languageService.findDocumentSymbols(
-      event.document,
-      stylesheet
+    connection.console.log(
+      `[Server(${process.pid}) ${path.basename(
+        workspaceFolder
+      )}/] Document opened: ${path.basename(event.document.uri)}.`
     );
     styleSheets[event.document.uri] = {
       document: event.document,
-      symbols,
     };
   }
 });
 documents.onDidChangeContent(async (event) => {
-  if (await documentShouldBeIgnored(event.document)) {
+  if (!(await isValidPeekTarget(event.document))) {
     return;
   }
 
-  connection.console.log(
-    `[Server(${process.pid}) ${path.basename(
-      workspaceFolder
-    )}/] Document changed: ${path.basename(event.document.uri)}`
-  );
   if (isLanguageServiceSupported(event.document.languageId)) {
-    const languageService = getLanguageService(event.document);
-    const stylesheet = languageService.parseStylesheet(event.document);
-    const symbols = languageService.findDocumentSymbols(
-      event.document,
-      stylesheet
+    connection.console.log(
+      `[Server(${process.pid}) ${path.basename(
+        workspaceFolder
+      )}/] Document changed: ${path.basename(
+        event.document.uri
+      )}. Invalidating Cache.`
     );
     styleSheets[event.document.uri] = {
       document: event.document,
-      symbols,
     };
   }
 });
@@ -165,7 +153,7 @@ const defaultSettings: Settings = {
 let globalSettings: Settings = defaultSettings;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<Settings>> = new Map();
+const documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 connection.onDidChangeConfiguration((change) => {
   if (hasConfigurationCapability) {
@@ -199,16 +187,18 @@ documents.onDidClose((e) => {
 function setupInitialStyleMap(params: InitializeParams) {
   const styleFiles = params.initializationOptions.stylesheets;
 
+  connection.console.log(
+    `[Server(${process.pid}) ${path.basename(
+      workspaceFolder
+    )}/] Number of style sheets - ${styleFiles.length}`
+  );
+
   styleFiles.forEach((fileUri: Uri) => {
     const languageId = fileUri.fsPath.split(".").slice(-1)[0];
     const text = fs.readFileSync(fileUri.fsPath, "utf8");
     const document = TextDocument.create(fileUri.uri, languageId, 1, text);
-    const languageService = getLanguageService(document);
-    const stylesheet = languageService.parseStylesheet(document);
-    const symbols = languageService.findDocumentSymbols(document, stylesheet);
     styleSheets[fileUri.uri] = {
       document,
-      symbols,
     };
   });
 }
@@ -222,7 +212,7 @@ connection.onDefinition(
 
     const document = documents.get(documentIdentifier.uri);
 
-    if (await documentShouldBeIgnored(document)) {
+    if (!(await isValidPeekSource(document))) {
       return null;
     }
     const settings = await getDocumentSettings(document.uri);
@@ -237,6 +227,7 @@ connection.onDefinition(
 );
 
 connection.onWorkspaceSymbol(({ query }) => {
+  if (query.length < 2) return [];
   const selectors: Selector[] = [
     {
       attribute: "class",
@@ -244,6 +235,10 @@ connection.onWorkspaceSymbol(({ query }) => {
     },
     {
       attribute: "id",
+      value: query,
+    },
+    {
+      attribute: "tag",
       value: query,
     },
   ];

@@ -25,7 +25,7 @@ The extension supports all the normal capabilities of symbol definition tracking
 - Go To: jump directly to the css file or open it in a new editor (`F12`)
 - Hover: show the definition in a hover over the symbol (`Ctrl+hover`)
 
-In addition, it supports the Symbol Provider so you can quickly jump to the right CSS/SCSS/LESS code if you already know the class or ID name
+In addition, it supports the Symbol Provider so you can quickly jump to the right CSS/SCSS/LESS code if you already know the class or ID name (You need to enter atleast 2 characters for this to work. This command can take a few seconds if you have large stylesheets)
 
 ![Symbol Provider](https://github.com/pranaygp/vscode-css-peek/raw/master/readme/symbolProvider.gif)
 

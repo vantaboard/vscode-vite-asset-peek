@@ -72,29 +72,58 @@ export function findSymbols(
     // Tag selectors must have nothing, whitespace, or a combinator before it.
     selection = "(^|[\\s>+~])" + selection;
   }
-  const re = new RegExp(
-    selection + "(\\[[^\\]]*\\]|:{1,2}[\\w-()]+|\\.[\\w-]+|#[\\w-]+)*\\s*$",
+
+  selection += "(\\[[^\\]]*\\]|:{1,2}[\\w-()]+|\\.[\\w-]+|#[\\w-]+)*\\s*";
+
+  // This regular expression will be used to test the symbol
+  const symbolRegexp = new RegExp(
+    selection + "$",
     classOrIdSelector ? "" : "i"
   );
+  // This regular expression will be used to test if file should even be parsed
+  // in the first place
+  const fileRegexp = new RegExp(selection, classOrIdSelector ? "" : "i");
 
   // Test all the symbols against the RegExp
   Object.keys(stylesheetMap).forEach((uri) => {
-    const { symbols } = stylesheetMap[uri];
+    const styleSheet = stylesheetMap[uri];
     try {
+      let symbols: SymbolInformation[];
+      if (styleSheet.symbols) {
+        // use the cached value
+        symbols = styleSheet.symbols;
+      } else {
+        // The document symbols haven't been extracted and cached yet.
+        // Let's first do a dumb check to see if the document even has the text we need in the first place
+        // if it doesn't, then we don't need to bother extrating and caching any symbols at all
+        const text = styleSheet.document.getText();
+        if (text.search(fileRegexp) === -1) return;
+        console.log(`Parsing ${path.basename(uri)}`);
+
+        // Looks like it does. Now, let's go ahead and actually get the symbols + cache the symbols for the future
+        const languageService = getLanguageService(styleSheet.document);
+        const stylesheet = languageService.parseStylesheet(styleSheet.document);
+        symbols = styleSheet.symbols = languageService.findDocumentSymbols(
+          styleSheet.document,
+          stylesheet
+        );
+      }
+
       console.log(`${path.basename(uri)} has ${symbols.length} symbols`);
+      console.log(`Searching through them all for /${selection}/`);
 
       symbols.forEach((symbol, i) => {
-        let name = resolveSymbolName(symbols, i);
+        const name = resolveSymbolName(symbols, i);
 
-        console.log(
-          `  ${symbol.location.range.start.line}:${
-            symbol.location.range.start.character
-          } ${symbol.deprecated ? "[deprecated] " : " "}${
-            symbol.containerName ? `[container:${symbol.containerName}] ` : " "
-          } [${symbol.kind}] ${name}`
-        );
+        // console.log(
+        //   `  ${symbol.location.range.start.line}:${
+        //     symbol.location.range.start.character
+        //   } ${symbol.deprecated ? "[deprecated] " : " "}${
+        //     symbol.containerName ? `[container:${symbol.containerName}] ` : " "
+        //   } [${symbol.kind}] ${name}`
+        // );
 
-        if (name.search(re) !== -1) {
+        if (name.search(symbolRegexp) !== -1) {
           foundSymbols.push(symbol);
         } else if (!classOrIdSelector) {
           // Special case for tag selectors - match "*" as the rightmost character
@@ -103,6 +132,8 @@ export function findSymbols(
           }
         }
       });
+
+      console.log(`Done`);
     } catch (e) {
       console.log(e.stack);
     }

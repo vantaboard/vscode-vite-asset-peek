@@ -4,7 +4,7 @@ import { TextDocument } from "vscode-languageserver/lib/main";
 export type StylesheetMap = {
   [uri: string]: {
     document: TextDocument;
-    symbols: SymbolInformation[];
+    symbols?: SymbolInformation[];
   };
 };
 
