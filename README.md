@@ -49,7 +49,9 @@ Contributions are greatly appreciated. Please fork the repository and submit a p
 
 # Changelog
 
-> TODO: Keep the changelog upto date
+## 4.3.0
+
+- Improve performance by incrementally caching the stylesheets as and when needed
 
 ## 4.2.0
 
