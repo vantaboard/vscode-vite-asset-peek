@@ -33,6 +33,7 @@
     "vscode": "^1.33.0"
   },
   "main": "./client/out/extension",
+  "browser": "./client/out/extension",
   "publisher": "pranaygp",
   "bugs": {
     "url": "https://github.com/pranaygp/vscode-css-peek/issues"

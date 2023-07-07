@@ -49,6 +49,10 @@ Contributions are greatly appreciated. Please fork the repository and submit a p
 
 ## 4.3.4
 
+- add vscode.dev support (experimental)
+
+## 4.3.4
+
 - fix tests
 
 ## 4.3.2
