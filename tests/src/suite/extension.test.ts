@@ -15,7 +15,12 @@ suite("Extension Tests", () => {
     // @ts-ignore
     create(console);
     vscode.workspace
-      .openTextDocument(`${vscode.workspace.workspaceFolders[0]}/example.html`)
+      .openTextDocument(
+        vscode.Uri.joinPath(
+          vscode.workspace.workspacFolders[0].uri,
+          "example.html"
+        )
+      )
       .then(
         (doc) => {
           document = doc;

@@ -49,6 +49,10 @@ Contributions are greatly appreciated. Please fork the repository and submit a p
 
 # Changelog
 
+## 4.3.3
+
+- fix tests
+
 ## 4.3.2
 
 - Improve performance by incrementally caching the stylesheets as and when needed
