@@ -7,7 +7,7 @@
 # Backed By
 
 
-<p><a title="Try Windsor" href="https://windsor.io/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner"><img src="https://uploads-ssl.webflow.com/62869dcaea70133a66edcb3d/62b2dfb1cdbe64df5d0ed22a_logo.svg"></a></br>
+<p><a title="Try Windsor" href="https://windsor.io/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner"><img src="https://res.cloudinary.com/windsorio/image/upload/v1688631831/logo/blob_nxyzw7.png"></a></br>
 Record once, scale to a million. Windsor's novel AI lets businesses easily scale personalized videos. Now you can use personal videos for sales, ecommerce, education, recruiting, or anything else, without the effort.<br> <a title="Try Windsor" href="https://windsor.io/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner">Learn More</a></p>
 <br>
 <p><a title="Try CodeStream" href="https://sponsorlink.codestream.com/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner"><img src="https://alt-images.codestream.com/codestream_logo_pranaygp_css_peek.png"></a></br>
@@ -49,7 +49,7 @@ Contributions are greatly appreciated. Please fork the repository and submit a p
 
 # Changelog
 
-## 4.3.0
+## 4.3.1
 
 - Improve performance by incrementally caching the stylesheets as and when needed
 
