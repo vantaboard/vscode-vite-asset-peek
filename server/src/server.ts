@@ -195,6 +195,9 @@ function setupInitialStyleMap(params: InitializeParams) {
 
   styleFiles.forEach((fileUri: Uri) => {
     const languageId = fileUri.fsPath.split(".").slice(-1)[0];
+    // TODO: this is bad. stop using the file system directly. Instead, use the VSCode 
+    // fs API to support the virutal filesystem
+    // https://github.com/microsoft/vscode/wiki/Virtual-Workspaces
     const text = fs.readFileSync(fileUri.fsPath, "utf8");
     const document = TextDocument.create(fileUri.uri, languageId, 1, text);
     styleSheets[fileUri.uri] = {

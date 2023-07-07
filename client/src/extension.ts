@@ -171,6 +171,8 @@ export function activate(context: ExtensionContext): void {
           initializationOptions: {
             stylesheets: potentialFiles.map((u) => ({
               uri: u.toString(),
+              // TODO: don't rely on fsPath in a virtual workspace
+              // https://github.com/microsoft/vscode/wiki/Virtual-Workspaces
               fsPath: u.fsPath,
             })),
             peekFromLanguages,

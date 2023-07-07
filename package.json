@@ -124,6 +124,10 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "The extension currently relies on the `fs` module but it should be easy to change this. Please make a PR to help."
     }
   },
   "scripts": {
