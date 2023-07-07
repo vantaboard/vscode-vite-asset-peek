@@ -4,7 +4,6 @@
 
 # Backed By
 
-
 <p><a title="Try Windsor" href="https://windsor.io/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner"><img src="https://res.cloudinary.com/windsorio/image/upload/v1688631831/logo/blob_nxyzw7.png"></a></br>
 Record once, scale to a million. Windsor's novel AI lets businesses easily scale personalized videos. Now you can use personal videos for sales, ecommerce, education, recruiting, or anything else, without the effort.<br> <a title="Try Windsor" href="https://windsor.io/?utm_source=vscmarket&amp;utm_campaign=pranaygp_css_peek&amp;utm_medium=banner">Learn More</a></p>
 <br>
@@ -46,6 +45,10 @@ See editor docs for more details
 Contributions are greatly appreciated. Please fork the repository and submit a pull request.
 
 # Changelog
+
+## 4.4.0
+
+- upgrade all dependncies
 
 ## 4.3.5
 
