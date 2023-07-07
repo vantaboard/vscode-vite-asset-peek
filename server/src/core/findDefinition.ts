@@ -1,9 +1,9 @@
 import * as path from "path";
 import {
   Location,
-  TextDocument,
   SymbolInformation,
-} from "vscode-languageserver/lib/main";
+} from "vscode-languageserver/node";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   getCSSLanguageService,
   getSCSSLanguageService,

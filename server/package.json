@@ -8,10 +8,11 @@
     "url": "https://github.com/pranaygp/vscode-css-peek"
   },
   "dependencies": {
-    "minimatch": "^3.0.4",
-    "vscode-css-languageservice": "^4.3.0",
-    "vscode-html-languageservice": "^3.1.0",
-    "vscode-languageserver": "^5.2.1"
+    "minimatch": "^9.0.3",
+    "vscode-css-languageservice": "^6.2.6",
+    "vscode-html-languageservice": "^5.0.6",
+    "vscode-languageserver": "^8.1.0",
+    "vscode-languageserver-textdocument": "^1.0.8"
   },
   "scripts": {}
 }

@@ -1,4 +1,5 @@
-import { Position, TextDocument } from "vscode-languageserver";
+import { Position } from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   Scanner,
   getLanguageService as getHTMLLanguageService,
@@ -59,7 +60,7 @@ export default function findSelector(
   while (tokenType !== TokenType.EOS) {
     switch (tokenType) {
       case TokenType.StartTag:
-      case TokenType.EndTag:
+      case TokenType.EndTag: {
         attribute = null;
 
         if (!settings.supportTags) {
@@ -89,6 +90,7 @@ export default function findSelector(
         if (start === tokenOffset)
           selector = { attribute: null, value: selectorWord };
         break;
+      }
       case TokenType.AttributeName:
         attribute = htmlScanner.getTokenText().toLowerCase();
 

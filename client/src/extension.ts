@@ -14,7 +14,7 @@ import {
   LanguageClient,
   LanguageClientOptions,
   TransportKind,
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 
 const SUPPORTED_EXTENSIONS = ["css", "scss", "less"];
 const SUPPORTED_EXTENSION_REGEX = /\.(css|scss|less)$/;
@@ -76,6 +76,7 @@ export function activate(context: ExtensionContext): void {
 
   function didOpenTextDocument(document: TextDocument): void {
     // TODO: Return if unsupported document.languageId
+    console.log(document);
     if (
       !["file", "untitled"].includes(document.uri.scheme) ||
       (!peekFromLanguages.includes(document.languageId) &&

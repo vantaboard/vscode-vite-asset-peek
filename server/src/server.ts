@@ -1,7 +1,7 @@
 "use strict";
 
 import fs = require("fs");
-import * as minimatch from "minimatch";
+import { minimatch } from "minimatch";
 import * as path from "path";
 import {
   createConnection,
@@ -11,9 +11,9 @@ import {
   TextDocumentPositionParams,
   Definition,
   InitializeParams,
-  TextDocument,
   DidChangeConfigurationNotification,
-} from "vscode-languageserver";
+} from "vscode-languageserver/node";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { Uri, StylesheetMap, Selector } from "./types";
 
 import findSelector from "./core/findSelector";
@@ -28,7 +28,7 @@ import { create } from "./logger";
 const connection = createConnection(ProposedFeatures.all);
 
 // Create a manager for open text documents
-const documents = new TextDocuments();
+const documents = new TextDocuments(TextDocument);
 
 // Create a map of styleSheet URIs to the stylesheet text content
 // NOTE: this is a really bad cache in practice. Large files will occupy tons of memory without being reused
@@ -195,7 +195,7 @@ function setupInitialStyleMap(params: InitializeParams) {
 
   styleFiles.forEach((fileUri: Uri) => {
     const languageId = fileUri.fsPath.split(".").slice(-1)[0];
-    // TODO: this is bad. stop using the file system directly. Instead, use the VSCode 
+    // TODO: this is bad. stop using the file system directly. Instead, use the VSCode
     // fs API to support the virutal filesystem
     // https://github.com/microsoft/vscode/wiki/Virtual-Workspaces
     const text = fs.readFileSync(fileUri.fsPath, "utf8");

@@ -1,5 +1,5 @@
 import { SymbolInformation } from "vscode-css-languageservice";
-import { TextDocument } from "vscode-languageserver/lib/main";
+import { TextDocument } from "vscode-languageserver-textdocument";
 
 export type StylesheetMap = {
   [uri: string]: {
