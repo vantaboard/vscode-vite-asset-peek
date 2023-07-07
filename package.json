@@ -10,7 +10,9 @@
     "type": "git",
     "url": "https://github.com/pranaygp/vscode-css-peek"
   },
-  "categories": [],
+  "categories": [
+    "Programming Languages"
+  ],
   "keywords": [
     "definition",
     "css",
@@ -21,7 +23,11 @@
     "style",
     "stylesheet",
     "jump to stylesheet",
-    "multi-root ready"
+    "multi-root ready",
+    "goto definition",
+    "peek definition",
+    "completion",
+    "workspace symbol"
   ],
   "engines": {
     "vscode": "^1.33.0"
@@ -79,7 +85,9 @@
             "typescriptreact",
             "HTML (Eex)",
             "html-eex",
-            "ejs"
+            "ejs",
+            "hbs",
+            "svelte"
           ],
           "items": {
             "type": "string"

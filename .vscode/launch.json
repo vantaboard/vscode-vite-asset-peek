@@ -7,8 +7,10 @@
       "request": "launch",
       "name": "Launch Client",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-      "stopOnEntry": false,
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
       "preLaunchTask": "npm: watch"
@@ -19,11 +21,11 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
+        "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}",
         "--extensionTestsPath=${workspaceRoot}/tests/out/suite/index",
         "${workspaceRoot}/tests/fixture/"
       ],
-      "stopOnEntry": false,
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/test/out/**/*.js"],
       "preLaunchTask": "npm: compile"
@@ -33,7 +35,6 @@
       "request": "attach",
       "name": "Attach to Server 6011",
       "address": "localhost",
-      "protocol": "inspector",
       "port": 6011,
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/server/out/**/*.js"]
@@ -43,7 +44,6 @@
       "request": "attach",
       "name": "Attach to Server 6012",
       "address": "localhost",
-      "protocol": "inspector",
       "port": 6012,
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/server/out/**/*.js"]
