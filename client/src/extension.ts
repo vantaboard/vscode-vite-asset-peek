@@ -16,8 +16,13 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 
+import { initializeReporter } from "./telemetry";
+import TelemetryReporter from "@vscode/extension-telemetry";
+
 const SUPPORTED_EXTENSIONS = ["css", "scss", "less"];
 const SUPPORTED_EXTENSION_REGEX = /\.(css|scss|less)$/;
+
+let reporter: TelemetryReporter = null;
 
 let defaultClient: LanguageClient;
 const clients: Map<string, LanguageClient> = new Map();
@@ -60,6 +65,11 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 }
 
 export function activate(context: ExtensionContext): void {
+  reporter = initializeReporter();
+  context.subscriptions.push(reporter);
+
+  reporter.sendTelemetryEvent("Activate Extension", { context: "client" });
+
   const module = context.asAbsolutePath(
     path.join("server", "out", "server.js")
   );
@@ -75,86 +85,48 @@ export function activate(context: ExtensionContext): void {
   >;
 
   function didOpenTextDocument(document: TextDocument): void {
-    // TODO: Return if unsupported document.languageId
-    console.log(document);
-    if (
-      !["file", "untitled"].includes(document.uri.scheme) ||
-      (!peekFromLanguages.includes(document.languageId) &&
-        !SUPPORTED_EXTENSION_REGEX.test(document.fileName))
-    ) {
-      return;
-    }
+    try {
+      if (
+        !["file", "untitled"].includes(document.uri.scheme) ||
+        (!peekFromLanguages.includes(document.languageId) &&
+          !SUPPORTED_EXTENSION_REGEX.test(document.fileName))
+      ) {
+        return;
+      }
 
-    const documentSelector = [
-      ...SUPPORTED_EXTENSIONS.map((language) => ({
-        scheme: "file",
-        language,
-      })),
-      ...SUPPORTED_EXTENSIONS.map((language) => ({
-        scheme: "untitled",
-        language,
-      })),
-      ...peekFromLanguages.map((language) => ({
-        scheme: "file",
-        language,
-      })),
-      ...peekFromLanguages.map((language) => ({
-        scheme: "untitled",
-        language,
-      })),
-    ];
+      const documentSelector = [
+        ...SUPPORTED_EXTENSIONS.map((language) => ({
+          scheme: "file",
+          language,
+        })),
+        ...SUPPORTED_EXTENSIONS.map((language) => ({
+          scheme: "untitled",
+          language,
+        })),
+        ...peekFromLanguages.map((language) => ({
+          scheme: "file",
+          language,
+        })),
+        ...peekFromLanguages.map((language) => ({
+          scheme: "untitled",
+          language,
+        })),
+      ];
 
-    const uri = document.uri;
-    // Untitled files go to a default client.
-    if (uri.scheme === "untitled" && !defaultClient) {
-      const debugOptions = { execArgv: ["--nolazy", "--inspect=6010"] };
-      const serverOptions = {
-        run: { module, transport: TransportKind.ipc },
-        debug: { module, transport: TransportKind.ipc, options: debugOptions },
+      const uri = document.uri;
+      const telemetryData = {
+        context: "client",
+        uriAuthority: uri.authority,
+        uriFragment: uri.fragment,
+        uriPath: uri.path,
+        uriQuery: uri.query,
+        uriScheme: uri.scheme,
+        workspaceFolder: null,
       };
-      const clientOptions: LanguageClientOptions = {
-        documentSelector,
-        synchronize: {
-          configurationSection: "cssPeek",
-        },
-        initializationOptions: {
-          stylesheets: [],
-          peekFromLanguages,
-        },
-        diagnosticCollectionName: "css-peek",
-        outputChannel,
-      };
-      defaultClient = new LanguageClient(
-        "css-peek",
-        "CSS Peek",
-        serverOptions,
-        clientOptions
-      );
-      defaultClient.registerProposedFeatures();
-      defaultClient.start();
-      return;
-    }
-    let folder = Workspace.getWorkspaceFolder(uri);
-    // Files outside a folder can't be handled. This might depend on the language.
-    // Single file languages like JSON might handle files outside the workspace folders.
-    if (!folder) {
-      return;
-    }
-    // If we have nested workspace folders we only start a server on the outer most workspace folder.
-    folder = getOuterMostWorkspaceFolder(folder);
 
-    if (!clients.has(folder.uri.toString())) {
-      Workspace.findFiles(
-        `{${(peekToInclude || []).join(",")}}`,
-        `{${(peekToExclude || []).join(",")}}`
-      ).then((file_searches) => {
-        const potentialFiles: Uri[] = file_searches.filter(
-          (uri: Uri) => uri.scheme === "file"
-        );
-
-        const debugOptions = {
-          execArgv: ["--nolazy", `--inspect=${6011 + clients.size}`],
-        };
+      // Untitled files go to a default client.
+      if (uri.scheme === "untitled" && !defaultClient) {
+        const debugOptions = { execArgv: ["--nolazy", "--inspect=6010"] };
         const serverOptions = {
           run: { module, transport: TransportKind.ipc },
           debug: {
@@ -165,31 +137,92 @@ export function activate(context: ExtensionContext): void {
         };
         const clientOptions: LanguageClientOptions = {
           documentSelector,
-          diagnosticCollectionName: "css-peek",
           synchronize: {
             configurationSection: "cssPeek",
           },
           initializationOptions: {
-            stylesheets: potentialFiles.map((u) => ({
-              uri: u.toString(),
-              // TODO: don't rely on fsPath in a virtual workspace
-              // https://github.com/microsoft/vscode/wiki/Virtual-Workspaces
-              fsPath: u.fsPath,
-            })),
+            stylesheets: [],
             peekFromLanguages,
           },
-          workspaceFolder: folder,
+          diagnosticCollectionName: "css-peek",
           outputChannel,
         };
-        const client = new LanguageClient(
+        defaultClient = new LanguageClient(
           "css-peek",
           "CSS Peek",
           serverOptions,
           clientOptions
         );
-        client.registerProposedFeatures();
-        client.start();
-        clients.set(folder.uri.toString(), client);
+        defaultClient.registerProposedFeatures();
+        defaultClient.start();
+        reporter.sendTelemetryEvent("Document Opened", telemetryData);
+        return;
+      }
+      let folder = Workspace.getWorkspaceFolder(uri);
+      // Files outside a folder can't be handled. This might depend on the language.
+      // Single file languages like JSON might handle files outside the workspace folders.
+      if (!folder) {
+        reporter.sendTelemetryEvent("Document Opened", telemetryData);
+        return;
+      }
+      // If we have nested workspace folders we only start a server on the outer most workspace folder.
+      folder = getOuterMostWorkspaceFolder(folder);
+      telemetryData.workspaceFolder = folder;
+
+      if (!clients.has(folder.uri.toString())) {
+        Workspace.findFiles(
+          `{${(peekToInclude || []).join(",")}}`,
+          `{${(peekToExclude || []).join(",")}}`
+        ).then((file_searches) => {
+          const potentialFiles: Uri[] = file_searches.filter(
+            (uri: Uri) => uri.scheme === "file"
+          );
+
+          const debugOptions = {
+            execArgv: ["--nolazy", `--inspect=${6011 + clients.size}`],
+          };
+          const serverOptions = {
+            run: { module, transport: TransportKind.ipc },
+            debug: {
+              module,
+              transport: TransportKind.ipc,
+              options: debugOptions,
+            },
+          };
+          const clientOptions: LanguageClientOptions = {
+            documentSelector,
+            diagnosticCollectionName: "css-peek",
+            synchronize: {
+              configurationSection: "cssPeek",
+            },
+            initializationOptions: {
+              stylesheets: potentialFiles.map((u) => ({
+                uri: u.toString(),
+                // TODO: don't rely on fsPath in a virtual workspace
+                // https://github.com/microsoft/vscode/wiki/Virtual-Workspaces
+                fsPath: u.fsPath,
+              })),
+              peekFromLanguages,
+            },
+            workspaceFolder: folder,
+            outputChannel,
+          };
+          const client = new LanguageClient(
+            "css-peek",
+            "CSS Peek",
+            serverOptions,
+            clientOptions
+          );
+          client.registerProposedFeatures();
+          client.start();
+          clients.set(folder.uri.toString(), client);
+        });
+      }
+      reporter.sendTelemetryEvent("Document Opened", telemetryData);
+    } catch (e) {
+      reporter.sendTelemetryErrorEvent(e, {
+        context: "client",
+        method: "didOpenTextDocument",
       });
     }
   }
@@ -200,6 +233,16 @@ export function activate(context: ExtensionContext): void {
     for (const folder of event.removed) {
       const client = clients.get(folder.uri.toString());
       if (client) {
+        reporter.sendTelemetryEvent("Workspace Folder Closed", {
+          context: "client",
+          folderName: folder.name,
+          uriAuthority: folder.uri.authority,
+          uriFragment: folder.uri.fragment,
+          uriPath: folder.uri.path,
+          uriQuery: folder.uri.query,
+          uriScheme: folder.uri.scheme,
+        });
+
         clients.delete(folder.uri.toString());
         client.stop();
       }
@@ -215,5 +258,10 @@ export function deactivate(): Thenable<void> {
   for (const client of clients.values()) {
     promises.push(client.stop());
   }
+  reporter.sendTelemetryEvent(
+    "Deactivate Extension",
+    { context: "client" },
+    { activeClients: promises.length }
+  );
   return Promise.all(promises).then(() => undefined);
 }

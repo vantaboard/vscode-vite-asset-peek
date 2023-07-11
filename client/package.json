@@ -12,6 +12,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@vscode/extension-telemetry": "^0.8.1",
     "vscode-languageclient": "^8.1.0"
   },
   "devDependencies": {
