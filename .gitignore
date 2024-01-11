@@ -3,4 +3,3 @@ out
 node_modules
 client/server
 tsconfig.tsbuildinfo
-.nyc_output

@@ -1,6 +1,5 @@
 {
   "version": "0.2.0",
-  // List of configurations. Add new configurations or edit existing ones.
   "configurations": [
     {
       "type": "extensionHost",
@@ -14,21 +13,6 @@
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
       "preLaunchTask": "npm: watch"
-    },
-    {
-      "name": "Launch Tests",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceRoot}",
-        "--extensionTestsPath=${workspaceRoot}/tests/out/suite/index",
-        "${workspaceRoot}/tests/fixture/"
-      ],
-      "sourceMaps": true,
-      "outFiles": ["${workspaceRoot}/test/out/**/*.js"],
-      "preLaunchTask": "npm: compile"
     },
     {
       "type": "node",

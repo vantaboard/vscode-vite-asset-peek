@@ -1,5 +1,4 @@
 .vscode/**
-.nyc_output/**
 **/*.ts
 **/*.map
 
@@ -8,17 +7,13 @@
 **/tsconfig.base.json
 
 **/*.tsbuildinfo
-**/yarn.lock
-**/contributing.md
-**/.travis.yml
+**/pnpm-lock.yaml
 **/.eslintignore
-**/.eslintrc.js
-**/.eslintrc.json
+**/.eslintrc.cjs
 
 
 readme/**
 node_modules/**
-tests/**
 
 **/node_modules/@types/**
 **/node_modules/**/README.md

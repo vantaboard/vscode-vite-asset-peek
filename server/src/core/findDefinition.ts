@@ -9,7 +9,6 @@ import {
   getSCSSLanguageService,
   getLESSLanguageService,
   LanguageService,
-  SymbolKind,
 } from "vscode-css-languageservice";
 
 import { Selector, StylesheetMap } from "../types";

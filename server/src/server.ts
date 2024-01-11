@@ -1,6 +1,6 @@
 "use strict";
 
-import fs = require("fs");
+import * as fs from "fs";
 import { minimatch } from "minimatch";
 import * as path from "path";
 import {
@@ -160,7 +160,7 @@ connection.onDidChangeConfiguration((change) => {
     // Reset all cached document settings
     documentSettings.clear();
   } else {
-    globalSettings = <Settings>(change.settings.cssPeek || defaultSettings);
+    globalSettings = <Settings>(change.settings.viteAssetPeek || defaultSettings);
   }
 });
 
@@ -172,7 +172,7 @@ function getDocumentSettings(resource: string): Thenable<Settings> {
   if (!result) {
     result = connection.workspace.getConfiguration({
       scopeUri: resource,
-      section: "cssPeek",
+      section: "viteAssetPeek",
     });
     documentSettings.set(resource, result);
   }

@@ -16,13 +16,8 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 
-import { initializeReporter } from "./telemetry";
-import TelemetryReporter from "@vscode/extension-telemetry";
-
 const SUPPORTED_EXTENSIONS = ["css", "scss", "less"];
 const SUPPORTED_EXTENSION_REGEX = /\.(css|scss|less)$/;
-
-let reporter: TelemetryReporter = null;
 
 let defaultClient: LanguageClient;
 const clients: Map<string, LanguageClient> = new Map();
@@ -65,17 +60,12 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 }
 
 export function activate(context: ExtensionContext): void {
-  reporter = initializeReporter();
-  context.subscriptions.push(reporter);
-
-  reporter.sendTelemetryEvent("Activate Extension", { context: "client" });
-
   const module = context.asAbsolutePath(
     path.join("server", "out", "server.js")
   );
-  const outputChannel: OutputChannel = Window.createOutputChannel("CSS Peek");
+  const outputChannel: OutputChannel = Window.createOutputChannel("Vite Static Asset Peek");
 
-  const config: WorkspaceConfiguration = Workspace.getConfiguration("cssPeek");
+  const config: WorkspaceConfiguration = Workspace.getConfiguration("viteAssetPeek");
   const peekFromLanguages: Array<string> = config.get(
     "peekFromLanguages"
   ) as Array<string>;
@@ -138,31 +128,31 @@ export function activate(context: ExtensionContext): void {
         const clientOptions: LanguageClientOptions = {
           documentSelector,
           synchronize: {
-            configurationSection: "cssPeek",
+            configurationSection: "viteAssetPeek",
           },
           initializationOptions: {
             stylesheets: [],
             peekFromLanguages,
           },
-          diagnosticCollectionName: "css-peek",
+          diagnosticCollectionName: "vite-asset-peek",
           outputChannel,
         };
         defaultClient = new LanguageClient(
-          "css-peek",
-          "CSS Peek",
+          "vite-asset-peek",
+          "Vite Static Asset Peek",
           serverOptions,
           clientOptions
         );
         defaultClient.registerProposedFeatures();
         defaultClient.start();
-        reporter.sendTelemetryEvent("Document Opened", telemetryData);
+        console.debug("Document Opened", telemetryData);
         return;
       }
       let folder = Workspace.getWorkspaceFolder(uri);
       // Files outside a folder can't be handled. This might depend on the language.
       // Single file languages like JSON might handle files outside the workspace folders.
       if (!folder) {
-        reporter.sendTelemetryEvent("Document Opened", telemetryData);
+        console.debug("Document Opened", telemetryData);
         return;
       }
       // If we have nested workspace folders we only start a server on the outer most workspace folder.
@@ -191,9 +181,9 @@ export function activate(context: ExtensionContext): void {
           };
           const clientOptions: LanguageClientOptions = {
             documentSelector,
-            diagnosticCollectionName: "css-peek",
+            diagnosticCollectionName: "vite-asset-peek",
             synchronize: {
-              configurationSection: "cssPeek",
+              configurationSection: "viteAssetPeek",
             },
             initializationOptions: {
               stylesheets: potentialFiles.map((u) => ({
@@ -208,8 +198,8 @@ export function activate(context: ExtensionContext): void {
             outputChannel,
           };
           const client = new LanguageClient(
-            "css-peek",
-            "CSS Peek",
+            "vite-asset-peek",
+            "Vite Static Asset Peek",
             serverOptions,
             clientOptions
           );
@@ -218,9 +208,9 @@ export function activate(context: ExtensionContext): void {
           clients.set(folder.uri.toString(), client);
         });
       }
-      reporter.sendTelemetryEvent("Document Opened", telemetryData);
+      console.debug("Document Opened", telemetryData);
     } catch (e) {
-      reporter.sendTelemetryErrorEvent(e, {
+      console.error(e, {
         context: "client",
         method: "didOpenTextDocument",
       });
@@ -233,7 +223,7 @@ export function activate(context: ExtensionContext): void {
     for (const folder of event.removed) {
       const client = clients.get(folder.uri.toString());
       if (client) {
-        reporter.sendTelemetryEvent("Workspace Folder Closed", {
+        console.debug("Workspace Folder Closed", {
           context: "client",
           folderName: folder.name,
           uriAuthority: folder.uri.authority,
@@ -250,7 +240,7 @@ export function activate(context: ExtensionContext): void {
   });
 }
 
-export function deactivate(): Thenable<void> {
+export async function deactivate(): Promise<void> {
   const promises: Thenable<void>[] = [];
   if (defaultClient) {
     promises.push(defaultClient.stop());
@@ -258,10 +248,11 @@ export function deactivate(): Thenable<void> {
   for (const client of clients.values()) {
     promises.push(client.stop());
   }
-  reporter.sendTelemetryEvent(
+  console.debug(
     "Deactivate Extension",
     { context: "client" },
     { activeClients: promises.length }
   );
-  return Promise.all(promises).then(() => undefined);
+  await Promise.all(promises);
+return undefined;
 }
